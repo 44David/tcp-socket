@@ -7,14 +7,16 @@
 #include <netinet/in.h>
 
 // displays error when called and exits.
-void error(char *msg) {
+void error(const char *msg) {
     perror(msg); // produces a short error message on stderr 
     exit(1);
 };
 
 int main(int argc, char *argv[]) {
     // sockfd and newsockfd are file descriptors, 
-    int sockfd, newsockfd, portno, clilen, n;
+    int sockfd, newsockfd, portno;
+    socklen_t clilen;
+    int n;
     char buffer[256];
 
     // a structure which contains the internet address, from netinet/in.h
