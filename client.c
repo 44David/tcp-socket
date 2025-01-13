@@ -48,10 +48,15 @@ int main(int argc, char *argv[]) {
         error("Error when connecting");
     }
 
-    printf("Enter a message to send to server ");
+    // printf("Enter a message to send to server ");
+
     bzero(buffer, 256);
-    fgets(buffer, 255, stdin); // reads incoming messages from stdin
-    n = write(sockfd, buffer, strlen(buffer));
+    // fgets(buffer, 255, stdin); // reads incoming messages from stdin
+
+    // char header[] = "HTTP/1.1 200 \r\n\r\n <h1>Hello</h1>";
+    char header[] = "GET /index.html HTTP/1.1\r\n";
+
+    n = write(sockfd, header, strlen(header));
 
     if (n < 0) {
         error("Error when writing to socket");

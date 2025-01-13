@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     }
 
     // initialize a buffer using bzero(), then read from the socket. read() will block until something is read.
-    bzero(buffer, 256);
+    // bzero(buffer, 256);
     n = read(newsockfd, buffer, 255);
     
     if (n < 0) {
