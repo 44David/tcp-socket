@@ -17,16 +17,16 @@ int main(int argc, char *argv[]) {
     int sockfd, newsockfd, portno;
     socklen_t clilen;
     int n;
-    char buffer[2048];
+    char buffer[256];
 
     // a structure which contains the internet address, from netinet/in.h
     struct sockaddr_in serv_addr, cli_addr;
 
     // checks given args to see if user provided a port number
-    // if (argc < 2) {
-    //     fprintf(stderr, "No port provided\n");
-    //     exit(1);
-    // }
+    if (argc < 2) {
+        fprintf(stderr, "No port provided\n");
+        exit(1);
+    }
     
     // creates a new socket, 1st arg is the address domain, we use AF_INET to specify usage of Internet Domain
     // 2nd arg is the type of socket, we use SOCK_STREAM for a socket stream, where characters are read in a stream. 
@@ -40,22 +40,20 @@ int main(int argc, char *argv[]) {
     bzero((char *) &serv_addr, sizeof(serv_addr));
 
     // atoi() converts string of digits to integer
-    // portno = atoi(argv[1]);
+    portno = atoi(argv[1]);
 
     serv_addr.sin_family = AF_INET;
     // htons() converts port number to network byte order
-    serv_addr.sin_port = htons(80);
+    serv_addr.sin_port = htons(portno);
     serv_addr.sin_addr.s_addr = INADDR_ANY;
 
     // bind() is used to bind a socket to address, it takes in our socket file descriptor, address and size of the address
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        error("Error when binding");
+        error("Error when binding.");
     }
 
     // allows listening on the socket for connections, 2nd arg is the backlog queue (number of connections that can be held waiting)
     listen(sockfd, 5);
-
-    char header[] = "HTTP/1.0 200 OK\r\nServer: CPi\r\nContent-type: text/html\r\n\r\n";
 
     // accept() is used to block until a connection from client to server is present.
     clilen = sizeof(cli_addr);
@@ -65,8 +63,8 @@ int main(int argc, char *argv[]) {
     }
 
     // initialize a buffer using bzero(), then read from the socket. read() will block until something is read.
-    // bzero(buffer, 256);
-    n = read(newsockfd, header, 2048);
+    bzero(buffer, 256);
+    n = read(newsockfd, buffer, 255);
     
     if (n < 0) {
         error("Error when reading from socket.");
