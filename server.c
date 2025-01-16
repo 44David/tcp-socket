@@ -52,30 +52,34 @@ int main(int argc, char *argv[]) {
         error("Error when binding.");
     }
 
-    // allows listening on the socket for connections, 2nd arg is the backlog queue (number of connections that can be held waiting)
-    listen(sockfd, 5);
+    while (1) {
 
-    // accept() is used to block until a connection from client to server is present.
-    clilen = sizeof(cli_addr);
-    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-    if (newsockfd < 0) {
-        error("Error when accepting");
+        // allows listening on the socket for connections, 2nd arg is the backlog queue (number of connections that can be held waiting)
+        listen(sockfd, 5);
+        // accept() is used to block until a connection from client to server is present.
+        clilen = sizeof(cli_addr);
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        if (newsockfd < 0) {
+            error("Error when accepting");
+        }
+
+        // initialize a buffer using bzero(), then read from the socket. read() will block until something is read.
+        bzero(buffer, 256);
+        n = read(newsockfd, buffer, 255);
+        
+        if (n < 0) {
+            error("Error when reading from socket.");
+        }
+
+        printf("Message read from client: %s", buffer);
+
+
     }
 
-    // initialize a buffer using bzero(), then read from the socket. read() will block until something is read.
-    bzero(buffer, 256);
-    n = read(newsockfd, buffer, 255);
     
-    if (n < 0) {
-        error("Error when reading from socket.");
-    }
-
-    printf("Message read from client: %s", buffer);
-
     n = write(newsockfd, "This message is written for the client.", 18);
     if (n < 0) {
         error("Error when writing to socket");
     }
-    
     return 0;
 }
