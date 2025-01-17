@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+void receive_message(int);
+
 // displays error when called and exits.
 void error(const char *msg) {
     perror(msg); // produces a short error message on stderr 
@@ -16,7 +18,7 @@ int main(int argc, char *argv[]) {
     // sockfd and newsockfd are file descriptors, 
     int sockfd, newsockfd, portno;
     socklen_t clilen;
-    int n;
+    int n, pid;
     char buffer[256];
 
     // a structure which contains the internet address, from netinet/in.h
@@ -57,10 +59,36 @@ int main(int argc, char *argv[]) {
 
     // accept() is used to block until a connection from client to server is present.
     clilen = sizeof(cli_addr);
-    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-    if (newsockfd < 0) {
-        error("Error when accepting");
+
+    while (1) {
+
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+
+        if (newsockfd < 0) {
+            error("Error when accepting");
+        }
+
+        pid = fork();
+
+        if (pid < 0) {
+            error("Error on fork");
+        }
+        if (pid == 0) {
+            close(sockfd);
+            receive_message(newsockfd);
+            exit(0);
+        } else {
+            close(newsockfd);
+        }
+
     }
+
+    return 0;
+}
+
+void receive_message(int newsockfd) {
+    int n;
+    char buffer[256];
 
     // initialize a buffer using bzero(), then read from the socket. read() will block until something is read.
     bzero(buffer, 256);
@@ -76,6 +104,4 @@ int main(int argc, char *argv[]) {
     if (n < 0) {
         error("Error when writing to socket");
     }
-    
-    return 0;
 }
